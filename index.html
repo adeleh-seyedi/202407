@@ -1,0 +1,153 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Contract in Health Insurance</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    <script src="abi.js"></script>
+    <script src="js.js"></script>
+    <script src="utils.js"></script>
+    <script src="createKeys.js"></script>
+    <script src="createReceipt.js"></script>
+    <script src="createReimbursement.js"></script>
+    <script src="signAndRecover.js"></script>
+    <style>
+      /* #entitiesWrapper, #entitiesWrapper div {
+          display: none;
+      } */
+      input {
+          width: 450px;
+          display: block;
+          margin: 10px;
+      }
+  </style>
+  </head>
+  <body>
+    <div id="register">
+        <button onclick="register()">Register</button>
+        <button onclick="openModal()">Login</button>
+    </div>
+    <div id="generator" class="mainWrapper" style="display: none;">
+      <div>
+        <input list="entities" type="text" name="entity" id="entity" placeholder="Entity" required>
+        <input type="text" id="name" placeholder="Name" required>
+        <input type="text" id="surname" placeholder="Surname" required>
+        <input type="text" id="home" placeholder="Home Address" required>
+        <input type="text" id="phone" placeholder="Phone Number" required>
+        <button onclick="genKey()">Generate Key</button>
+        <p>Your Address: <span id="address"></span></p>
+        <p>Your Private Key: <span id="privKey"></span></p>
+        <button onclick="signup()">Submit</button>
+        <p id="response"></p>
+      </div>
+    </div>
+    <div id="entitiesWrapper" class="mainWrapper">
+      <div id="message"></div> 
+      <div id="request">
+        <h1>Request</h1>
+        <input type="text" placeholder="Patient's Symptoms [Symptom1, Symptom2, Symptom3]" id="req">
+        <button onclick="fillMessage()">Fill in</button>
+        <button onclick="signMessage()">Sign</button>
+        <p>Your signature: <span id="patientsig"></span></p>
+      </div>
+      <div id="doctor">
+        <h1>Doctor</h1>
+        <input type="text" placeholder="Patient's Request" id="req1">
+        <input type="text" placeholder="Patient's Signature" id="req2">
+        <input type="text" id="dr0" placeholder="Patient's address" list="entityDatalist"/>
+        <button id="msg" onclick="verifyMessage()">Verify Signature</button>
+        <input type="text" id="dr1" placeholder="Doctor's address" list="entityDatalist"/>
+        <div id="doctordiv"></div> 
+        <button onclick="setEntities()">Fill in</button>
+        <button id="submitP" onclick="createPrescription()">Sign</button>
+        <p>Your signature: <span id="drsig"></span></p>
+      </div>
+      <div id="hospital">
+        <h1>Hospital</h1>
+        <input type="text" placeholder="Patient's Request" id="req3">
+        <input type="text" placeholder="Patient's Signature" id="req4">
+        <input type="text" placeholder="Doctor's Signature" id="req5">
+        <input type="text" id="h0" placeholder="Patient's address" list="entityDatalist" />
+        <input type="text" id="h1" placeholder="Doctor's address" list="entityDatalist" />
+        <input type="text" id="h3" placeholder="Title">
+        <input type="text" id="h4" placeholder="Data">
+        <input type="text" id="h5" placeholder="Date">
+        <button id="vdr" onclick="verifyDr()">Verify Signatures</button>
+        <input type="text" id="h2" placeholder="Hospital's address" list="entityDatalist" />
+        <input type="text" id="h6" placeholder="Fee">
+        <input type="text" id="h7" placeholder="Fee Description">
+        <button id="sendP" onclick="sendPrescription()">Fill in</button>
+        <button id="submitP" onclick="createReceiptH()">Sign</button>
+        <p>Your signature: <span id="hsig"></span></p>
+      </div>
+      <div id="patient">
+        <h1>Patient</h1>
+        <input type="text" placeholder="Doctor's Signature" id="req6">
+        <input type="text" placeholder="Hospital's Signature" id="req7">
+        <input type="text" id="p0" placeholder="Patient's address" list="entityDatalist" />
+        <input type="text" id="p1" placeholder="Doctor's address" list="entityDatalist" />
+        <input type="text" id="p3" placeholder="Title">
+        <input type="text" id="p4" placeholder="Data">
+        <input type="text" id="p5" placeholder="Date">
+        <input type="text" id="p2" placeholder="Hospital's address" list="entityDatalist" />
+        <input type="text" id="p6" placeholder="Fee">
+        <input type="text" id="p7" placeholder="Fee Description">
+        <button id="vh" onclick="verifyHospital()">Verify Signatures</button>
+        <button id="sendP" onclick="fillPrescription()">Fill in</button>
+        <button id="submitP" onclick="createReceipt()">Sign</button>
+        <p>Your signature: <span id="psig"></span></p>
+      </div>
+      <div id="pharmacy"></div>
+      <div id="pharmaceutical-company"></div>
+      <div id="diagnostic-center"></div>
+      <div id="equipment-supplier"></div>
+      <div id="wholesale-dealer"></div>
+      <div id="insurance-company">
+        <h1>Insurance Company</h1>
+        <input type="text" placeholder="Patient's Request" id="req8">
+        <input type="text" placeholder="Patient's Signature" id="req9">
+        <input type="text" id="ic0" placeholder="Patient's address" list="entityDatalist"/>
+        <input type="text" id="ic1" placeholder="Doctor's address" list="entityDatalist"/>
+        <input type="text" id="ic3" placeholder="Title">
+        <input type="text" id="ic4" placeholder="Data">
+        <input type="text" id="ic5" placeholder="Date">
+        <input type="text" id="ic2" placeholder="Hospital's address" list="entityDatalist" />
+        <input type="text" id="ic6" placeholder="Fee">
+        <input type="text" id="ic7" placeholder="Fee Description">
+        <input type="text" id="ic8" placeholder="Repay Percentage">
+        <input type="text" id="ic9" placeholder="Completed?">
+        <input type="text" id="ic10" placeholder="Patient's signature">
+        <input type="text" id="ic11" placeholder="Doctor's signature">
+        <input type="text" id="ic12" placeholder="Hospital's signature">
+        <button id="sendP" onclick="sendReceipt()">Fill in</button>
+        <button onclick="verifySignatures()">Verify Signatures</button>
+        <button id="submitIC" onclick="createReimbursement()">Reimburse Patient</button>
+        <p id="icsig">Your tx: </p>
+      </div>
+    </div>
+
+    <datalist id="entities">
+        <option value="patient">Patient</option>
+        <option value="doctor">Doctor</option>
+        <option value="hospital">Hospital</option>
+        <option value="pharmacy">Pharmacy</option>
+        <option value="pharmaceutical_company">Pharmaceutical Company</option>
+        <option value="diagnostic_center">Diagnostic Center</option>
+        <option value="equipment_supplier">Equipment Supplier</option>
+        <option value="wholesale_dealer">Wholesale Dealer</option>
+        <option value="insurance_company">Insurance Company</option>
+    </datalist>
+    <datalist id="entityDatalist">
+      <option value="0xF37E66e8BEF36eEcA82BDCd594fa7B60474Bd74B">patient</option>
+      <option value="0x54133A0742B925Da8Ab4A4665183dB1dEC9434d2">doctor</option>
+      <option value="0x09b74c8Bf2D0E71E4C97e081Ab00F5DC632F9B89">hospital</option>
+      <option value="0x17ad441c05bda9CB9F366Db0bC91c442f30Cb020">insurance_company</option>
+    </datalist>
+    <script>
+        addInput();
+        loginMeta();
+        // setEntities();
+    </script>
+  </body>
+</html>
